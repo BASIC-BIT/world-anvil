@@ -45,7 +45,7 @@ export default class WorldAnvilConfig extends FormApplication {
     if ( stepNumber === 3 ) this.options.closeOnSubmit = true;
 
     // Maybe retrieve a list of world options
-    if ( anvil.user && !anvil.worlds.length ) await anvil.getWorlds();
+    if ( anvil.user && (!anvil.worlds.length || anvil.otherUser) ) await anvil.getWorlds();
 
     // Return the template data for rendering
     return {
@@ -53,7 +53,8 @@ export default class WorldAnvilConfig extends FormApplication {
       displayWorldChoices: stepNumber >= 2,
       worlds: anvil.worlds,
       worldId: anvil.worldId,
-      authToken: anvil.authToken
+      authToken: anvil.authToken,
+      otherUserId: anvil.otherUserId
     };
   }
 
@@ -91,6 +92,7 @@ export default class WorldAnvilConfig extends FormApplication {
       onChange: async c => {
         const anvil = game.modules.get("world-anvil").anvil;
         if ( c.authToken !== anvil.authToken ) await anvil.connect(c.authToken);
+        if ( c.otherUserId !== anvil.otherUserId ) await anvil.fetchOtherUser(c.otherUserId);
         if ( c.worldId !== anvil.worldId ) await anvil.getWorld(c.worldId);
         const app = Object.values(ui.windows).find(a => a.constructor === WorldAnvilConfig);
         if ( app ) app.render();

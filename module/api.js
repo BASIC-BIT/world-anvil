@@ -35,6 +35,12 @@ export default class WorldAnvil {
      * @type {object|null}
      */
     this.user = null;
+
+    /**
+     * If Other User ID is provided, retrieve that user's worlds for the integration
+     * @type {object|null}
+     */
+    this.otherUser = null;
   }
 
   /**
@@ -129,6 +135,10 @@ export default class WorldAnvil {
     console.log(`World Anvil | Connected to World Anvil API as User ${this.user.username}`);
   }
 
+  async fetchOtherUser(otherUserId) {
+    this.otherUser = await this.getUser(otherUserId);
+  }
+
   /* -------------------------------------------- */
 
   /**
@@ -169,8 +179,9 @@ export default class WorldAnvil {
    * Fetch all articles from within a World, optionally filtering with a specific search query
    * @return {Promise<object>}    The World Anvil User object
    */
-  async getUser() {
-    return this._fetch("user");
+  async getUser(otherUser) {
+    const endpoint = otherUser ? `user/${otherUser}` : "user";
+    return this._fetch(endpoint);
   }
 
   /* -------------------------------------------- */
@@ -182,7 +193,8 @@ export default class WorldAnvil {
    */
   async getWorlds() {
     if (!this.connected) return [];
-    const request = await this._fetch(`user/${this.user.id}/worlds`);
+    const userId = this.otherUser ? this.otherUser.id : this.user.id;
+    const request = await this._fetch(`user/${userId}/worlds`);
     return this.worlds = request.worlds;
   }
 

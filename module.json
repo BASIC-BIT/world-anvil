@@ -1,6 +1,6 @@
 {
   "id": "world-anvil",
-  "title": "World Anvil Integration",
+  "title": "World Anvil Integration Test",
   "version": "#{VERSION}#",
   "description": "<p>A module to integrate <a href=\"https://worldanvil.com\" title=\"World Anvil\" target=\"_blank\">World Anvil</a> with Foundry Virtual Tabletop.</p>",
   "authors": [
@@ -11,6 +11,10 @@
     {
       "name": "Adrien Schiehle",
       "discord": "Didialchichi#2607"
+    },
+    {
+      "name": "BASIC",
+      "discord": "basic_bit"
     }
   ],
 	"compatibility": {
