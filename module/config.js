@@ -11,7 +11,7 @@ export default class WorldAnvilConfig extends FormApplication {
       template: "modules/world-anvil/templates/config.html",
       width: 600,
       height: "auto",
-      closeOnSubmit: false
+      closeOnSubmit: false,
     });
   }
 
@@ -35,18 +35,16 @@ export default class WorldAnvilConfig extends FormApplication {
       stepLabel = "WA.ConfigureStep1";
       stepNumber = 1;
     }
-    else if ( !anvil.worldId ) {
+    else if ( !anvil.worldId || anvil.showOtherUserError ) {
       stepLabel = "WA.ConfigureStep2";
       stepNumber = 2;
     }
     else stepNumber = 3;
 
-    // If we have reached step 3, we can safely close the form when it is submitted
-    if ( stepNumber === 3 ) this.options.closeOnSubmit = true;
-
     // Maybe retrieve a list of world options
-    if ( anvil.user && (!anvil.worlds.length || anvil.otherUser) ) await anvil.getWorlds();
+    if ( anvil.user && !anvil.worlds.length ) await anvil.getWorlds();
 
+    console.log("anvil", "getData", anvil)
     // Return the template data for rendering
     return {
       stepLabel: stepLabel,
@@ -54,7 +52,9 @@ export default class WorldAnvilConfig extends FormApplication {
       worlds: anvil.worlds,
       worldId: anvil.worldId,
       authToken: anvil.authToken,
-      otherUserId: anvil.otherUserId
+      otherUserId: anvil.otherUserId,
+      showOtherUserError: anvil.showOtherUserError,
+      showAuthTokenError: anvil.showAuthTokenError,
     };
   }
 
@@ -63,6 +63,7 @@ export default class WorldAnvilConfig extends FormApplication {
   /** @override */
   _updateObject(event, formData) {
     formData.authToken = formData.authToken.trim();
+    console.log("Form Data: ", formData);
     game.settings.set("world-anvil", "configuration", formData);
   }
 
@@ -92,10 +93,20 @@ export default class WorldAnvilConfig extends FormApplication {
       onChange: async c => {
         const anvil = game.modules.get("world-anvil").anvil;
         if ( c.authToken !== anvil.authToken ) await anvil.connect(c.authToken);
-        if ( c.otherUserId !== anvil.otherUserId ) await anvil.fetchOtherUser(c.otherUserId);
-        if ( c.worldId !== anvil.worldId ) await anvil.getWorld(c.worldId);
+
+        if ( c.otherUserId !== anvil.otherUser?.id ) {
+          await anvil.getOtherUser(c.otherUserId);
+        } else if ( !anvil.showOtherUserError && c.worldId !== anvil.worldId ) {
+          //Only fetch world if Other User ID hasn't changed
+          await anvil.getWorld(c.worldId);
+        }
         const app = Object.values(ui.windows).find(a => a.constructor === WorldAnvilConfig);
-        if ( app ) app.render();
+
+        if(anvil.authToken && anvil.world) {
+          app.close();
+        } else {
+          if ( app ) app.render();
+        }
       }
     });
 

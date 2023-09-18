@@ -38,7 +38,9 @@
   "WA.WorldIdHint": "Choose World from World Anvil that should be mapped to this World in Foundry Virtual Tabletop.",
   "WA.NoPermissionView": "You do not have permission to view this linked Article.",
   "WA.OtherUserId": "Other User ID",
-  "WA.OtherUserIdHint": "To choose worlds from another user, supply their User ID here.",
+  "WA.OtherUserIdHint": "To choose worlds from another user, supply their User ID here. Otherwise, leave this blank.",
+  "WA.OtherUserIdError": "Error fetching other user - please check the supplied User ID.",
+  "WA.AuthTokenError": "Error fetching user - please check the supplied authentication token.",
 
   "WA.Sync": "WA Sync",
   "WA.OnWA": "On World Anvil",

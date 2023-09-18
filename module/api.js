@@ -5,6 +5,7 @@
 export default class WorldAnvil {
   constructor() {
     const config = game.settings.get("world-anvil", "configuration");
+    console.log(config);
 
     /**
      * The Foundry VTT Application API key
@@ -41,6 +42,11 @@ export default class WorldAnvil {
      * @type {object|null}
      */
     this.otherUser = null;
+
+    this.otherUserId = config.otherUserId;
+
+    this.showOtherUserError = false;
+    this.showAuthTokenError = false;
   }
 
   /**
@@ -131,12 +137,37 @@ export default class WorldAnvil {
   async connect(authToken) {
     if (authToken !== undefined) this.authToken = authToken;
     if (!this.authToken) return;
-    this.user = await this.getUser();
-    console.log(`World Anvil | Connected to World Anvil API as User ${this.user.username}`);
+    try {
+      this.user = await this.getUser();
+      this.showAuthTokenError = false;
+      console.log(`World Anvil | Connected to World Anvil API as User ${this.user.username}`);
+    } catch(e) {
+      this.user = null;
+      this.worlds = [];
+      this.worldId = null;
+      this.showAuthTokenError = true;
+      this.showOtherUserError = false;
+    }
   }
 
-  async fetchOtherUser(otherUserId) {
-    this.otherUser = await this.getUser(otherUserId);
+  async getOtherUser(otherUserId) {
+    this.worlds = [];
+    this.worldId = null;
+    this.world = null;
+
+    if(otherUserId) {
+      try {
+        this.otherUser = await this.getUser(otherUserId);
+        this.showOtherUserError = false;
+      } catch(e) {
+        this.otherUser = null;
+        this.showOtherUserError = true;
+      }
+    } else {
+      this.otherUser = null;
+    }
+    
+    await this.getWorlds();
   }
 
   /* -------------------------------------------- */
@@ -206,8 +237,8 @@ export default class WorldAnvil {
    * @return {Promise<object>}    An array of Article objects
    */
   async getWorld(worldId) {
-    if ( this.world?.id === worldId ) return this.world;
     if (worldId !== undefined) this.worldId = worldId;
+    if ( this.world?.id === worldId ) return this.world;
     const world = await this._fetch(`world/${this.worldId}`);
     this.worldId = worldId;
     return this.world = world;

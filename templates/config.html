@@ -1,19 +1,22 @@
 <form>
     <p class="notification info">{{localize stepLabel}}</p>
 
+    {{#if showAuthTokenError}}
+    <p class="notification error">{{localize "WA.AuthTokenError"}}</p>
+    {{/if}}
     <div class="form-group">
         <label>{{localize "WA.UserToken"}}</label>
         <input type="text" name="authToken" value="{{authToken}}"/>
         <p class="notes">{{localize "WA.UserTokenHint"}}</p>
     </div>
-
-    {{#if displayWorldChoices }}
+    {{#if showOtherUserError}}
+    <p class="notification error">{{localize "WA.OtherUserIdError"}}</p>
+    {{/if}}
     <div class="form-group">
         <label>{{localize "WA.OtherUserId"}}</label>
         <input type="text" name="otherUserId" value="{{otherUserId}}"/>
         <p class="notes">{{localize "WA.OtherUserIdHint"}}</p>
     </div>
-    {{/if}}
 
     {{#if displayWorldChoices }}
     <div class="form-group">
